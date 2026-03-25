@@ -1,2 +1,99 @@
+# ------------------------------
+# Python
+# ------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ------------------------------
+# Virtual environments
+# ------------------------------
 .venv/
-env.py
+venv/
+env/
+ENV/
+.python-version
+
+# ------------------------------
+# Environment and secrets
+# ------------------------------
+.env
+.env.*
+*.env
+!.env.example
+
+# ------------------------------
+# Flask
+# ------------------------------
+instance/
+*.log
+
+# ------------------------------
+# SQLite and local DB artifacts
+# ------------------------------
+*.db
+*.sqlite
+*.sqlite3
+backend/database/
+backend/data/raw/
+
+# ------------------------------
+# Jupyter notebooks
+# ------------------------------
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# ------------------------------
+# Testing and coverage
+# ------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+
+# ------------------------------
+# Type checkers / linters
+# ------------------------------
+.pyre/
+.pytype/
+
+# ------------------------------
+# Editors and OS files
+# ------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------
+# Frontend accidental additions
+# ------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
