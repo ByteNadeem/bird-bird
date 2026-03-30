@@ -97,3 +97,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+.github\agents\mentor-defensive-coder.agent.md

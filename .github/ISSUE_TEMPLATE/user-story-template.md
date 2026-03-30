@@ -1,16 +1,38 @@
 ---
-name: User story Template
-about: A template for user stories
-title: 'USER STORY: title'
+name: User Story Template
+about: User Story Template
+title: User Story
 labels: ''
 assignees: ''
 
 ---
 
-As a: ROLE
-I can: ACTIVITY 
-so that: BENEFIT
+AS A
+I WANT
+SO THAT
 
-Acceptance Criteria
+---
 
-Tasks
+## Acceptance criteria
+
+Additional acceptance criteria:
+
+[ ]
+
+[ ]
+
+[ ]
+
+[ ]
+
+---
+
+## Tasks
+
+[ ]
+
+[ ]
+
+[ ]
+
+[ ]
