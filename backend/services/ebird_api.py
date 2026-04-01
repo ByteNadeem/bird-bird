@@ -11,12 +11,15 @@ from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 DEFAULT_REGION_CODE = "GB-ENG-CON"
 DEFAULT_MAX_RESULTS = 50
 DEFAULT_TIMEOUT_SECONDS = 20
 DEFAULT_OUTPUT_DIR = "backend/data/raw"
 EBIRD_URL_TEMPLATE = "https://api.ebird.org/v2/data/obs/{region_code}/recent"
 EBIRD_SPECIES_URL_TEMPLATE = "https://api.ebird.org/v2/data/obs/{region_code}/recent/{species_code}"
+EBIRD_REGION_SPPLIST_URL_TEMPLATE = "https://api.ebird.org/v2/product/spplist/{region_code}"
 
 
 class EbirdApiError(Exception):
@@ -92,6 +95,48 @@ def _resolve_api_key(api_key: str | None) -> str:
     return key
 
 
+def _resolve_output_dir(output_dir: str) -> Path:
+    out_dir = Path(output_dir)
+    if out_dir.is_absolute():
+        return out_dir
+    return PROJECT_ROOT / out_dir
+
+
+def _request_json(
+    *,
+    url: str,
+    api_key: str,
+    timeout_seconds: int,
+    session: requests.Session | None = None,
+    params: dict | None = None,
+    error_prefix: str = "eBird request failed",
+) -> object:
+    if timeout_seconds < 1:
+        raise ValueError("timeout_seconds must be at least 1")
+
+    headers = {"X-eBirdApiToken": api_key}
+    client = session or _build_session()
+
+    try:
+        response = client.get(url, headers=headers, params=params, timeout=timeout_seconds)
+    except requests.RequestException as exc:
+        raise EbirdApiError(f"Network error while calling eBird: {exc}") from exc
+
+    if response.status_code == 429:
+        raise EbirdApiError("Rate limited by eBird API")
+
+    if not response.ok:
+        body_preview = (response.text or "")[:500]
+        raise EbirdApiError(
+            f"{error_prefix} with status {response.status_code}: {body_preview}"
+        )
+
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise EbirdApiError("Invalid JSON from eBird") from exc
+
+
 def fetch_recent_observations(
     region_code: str,
     api_key: str | None = None,
@@ -102,8 +147,6 @@ def fetch_recent_observations(
 ) -> list[dict]:
     if max_results < 1:
         raise ValueError("max_results must be at least 1")
-    if timeout_seconds < 1:
-        raise ValueError("timeout_seconds must be at least 1")
 
     cleaned_region = _normalize_region_code(region_code)
     cleaned_species = _normalize_species_code(species_code)
@@ -116,32 +159,21 @@ def fetch_recent_observations(
         )
     else:
         url = EBIRD_URL_TEMPLATE.format(region_code=cleaned_region)
-    params = {"maxResults": max_results}
-    headers = {"X-eBirdApiToken": key}
-    client = session or _build_session()
 
     logger.info(
         "Requesting eBird data for region=%s species=%s",
         cleaned_region,
         cleaned_species or "ALL",
     )
-    try:
-        response = client.get(url, headers=headers, params=params, timeout=timeout_seconds)
-    except requests.RequestException as exc:
-        raise EbirdApiError(f"Network error while calling eBird: {exc}") from exc
 
-    if response.status_code == 429:
-        raise EbirdApiError("Rate limited by eBird API")
-    if not response.ok:
-        body_preview = (response.text or "")[:500]
-        raise EbirdApiError(
-            f"eBird request failed with status {response.status_code}: {body_preview}"
-        )
-
-    try:
-        payload = response.json()
-    except ValueError as exc:
-        raise EbirdApiError("Invalid JSON from eBird") from exc
+    payload = _request_json(
+        url=url,
+        api_key=key,
+        timeout_seconds=timeout_seconds,
+        session=session,
+        params={"maxResults": max_results},
+        error_prefix="eBird data request failed",
+    )
 
     if not isinstance(payload, list):
         raise EbirdApiError("Unexpected eBird payload shape (expected a list)")
@@ -150,8 +182,37 @@ def fetch_recent_observations(
     return payload
 
 
-def save_raw_json(data: list[dict], output_dir: str = DEFAULT_OUTPUT_DIR) -> Path:
-    out_dir = Path(output_dir)
+def fetch_region_species_list(
+    region_code: str,
+    api_key: str | None = None,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    session: requests.Session | None = None,
+) -> list[str]:
+    cleaned_region = _normalize_region_code(region_code)
+    key = _resolve_api_key(api_key)
+    url = EBIRD_REGION_SPPLIST_URL_TEMPLATE.format(region_code=cleaned_region)
+
+    logger.info("Requesting eBird species list for region=%s", cleaned_region)
+
+    payload = _request_json(
+        url=url,
+        api_key=key,
+        timeout_seconds=timeout_seconds,
+        session=session,
+        error_prefix="eBird species list request failed",
+    )
+
+    if not isinstance(payload, list):
+        raise EbirdApiError("Unexpected species list payload shape (expected a list)")
+    if not all(isinstance(code, str) for code in payload):
+        raise EbirdApiError("Unexpected species list payload contents (expected list[str])")
+
+    logger.info("Fetched %s species codes for region %s", len(payload), cleaned_region)
+    return payload
+
+
+def save_raw_json(data: object, output_dir: str = DEFAULT_OUTPUT_DIR) -> Path:
+    out_dir = _resolve_output_dir(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_path = out_dir / f"ebird_raw_{ts}.json"
@@ -165,7 +226,7 @@ def save_raw_json(data: list[dict], output_dir: str = DEFAULT_OUTPUT_DIR) -> Pat
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Fetch recent eBird observations and save them as raw JSON.",
+        description="Fetch recent eBird observations or region species list and save as raw JSON.",
     )
     parser.add_argument(
         "--region",
@@ -176,6 +237,11 @@ def _parse_args() -> argparse.Namespace:
         "--species",
         default=None,
         help="Optional species code (example: barswa, oystca1, norwhe).",
+    )
+    parser.add_argument(
+        "--region-spplist",
+        default=None,
+        help="Optional region code for species list mode (example: GB-ENG-CON).",
     )
     parser.add_argument(
         "--max-results",
@@ -209,27 +275,38 @@ def main() -> int:
     )
 
     # Prefer repository-root .env so execution works from any current directory.
-    project_root_env = Path(__file__).resolve().parents[2] / ".env"
+    project_root_env = PROJECT_ROOT / ".env"
     load_env_file(str(project_root_env))
     args = _parse_args()
 
     try:
-        records = fetch_recent_observations(
-            region_code=args.region,
-            api_key=args.api_key,
-            max_results=args.max_results,
-            timeout_seconds=args.timeout,
-            species_code=args.species,
-        )
-        output_path = save_raw_json(records, output_dir=args.output_dir)
+        if args.region_spplist:
+            records = fetch_region_species_list(
+                region_code=args.region_spplist,
+                api_key=args.api_key,
+                timeout_seconds=args.timeout,
+            )
+            output_path = save_raw_json(records, output_dir=args.output_dir)
+            print(
+                f"Fetched {len(records)} species codes for region {args.region_spplist} -> {output_path}"
+            )
+        else:
+            records = fetch_recent_observations(
+                region_code=args.region,
+                api_key=args.api_key,
+                max_results=args.max_results,
+                timeout_seconds=args.timeout,
+                species_code=args.species,
+            )
+            output_path = save_raw_json(records, output_dir=args.output_dir)
+            species_label = args.species if args.species else "ALL_SPECIES"
+            print(
+                f"Fetched {len(records)} records for region {args.region}, species {species_label} -> {output_path}"
+            )
     except (EbirdApiError, ValueError) as exc:
         logger.error(str(exc))
         return 1
 
-    species_label = args.species if args.species else "ALL_SPECIES"
-    print(
-        f"Fetched {len(records)} records for region {args.region}, species {species_label} -> {output_path}"
-    )
     return 0
 
 
