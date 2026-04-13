@@ -1,4 +1,4 @@
-.PHONY: help run spplist recent recent-species
+.PHONY: help run spplist recent recent-species load-sqlite
 
 PY ?= python
 SCRIPT := backend/services/ebird_api.py
@@ -28,3 +28,6 @@ recent:
 
 recent-species:
 	$(PY) $(SCRIPT) --region $(REGION) --species $(SPECIES) --max-results $(MAX_RESULTS) --timeout $(TIMEOUT) --output-dir $(OUTPUT_DIR)
+
+load-sqlite:
+	$(PY) scripts/load_movebank_sqlite.py
