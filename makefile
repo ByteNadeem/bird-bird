@@ -1,4 +1,4 @@
-.PHONY: help run spplist recent recent-species load-sqlite
+.PHONY: help run spplist recent recent-species load-sqlite verify-sqlite
 
 PY ?= python
 SCRIPT := backend/services/ebird_api.py
@@ -14,6 +14,8 @@ help:
 	@echo "  make recent REGION=GB-ENG-CON MAX_RESULTS=50"
 	@echo "  make recent-species REGION=GB-ENG-CON SPECIES=barswa"
 	@echo "  make run REGION=GB-ENG-CON"
+	@echo "  make load-sqlite"
+	@echo "  make verify-sqlite"
 	@echo ""
 	@echo "Variables: PY, REGION, SPECIES, MAX_RESULTS, TIMEOUT, OUTPUT_DIR"
 
@@ -31,3 +33,6 @@ recent-species:
 
 load-sqlite:
 	$(PY) scripts/load_movebank_sqlite.py
+
+verify-sqlite:
+	$(PY) scripts/verify_movebank_sqlite.py

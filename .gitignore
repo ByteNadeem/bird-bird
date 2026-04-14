@@ -99,3 +99,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 .github\agents\mentor-defensive-coder.agent.md
+.docs/*
+backend/data/plots/*.*
+
+

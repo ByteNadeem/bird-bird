@@ -25,6 +25,7 @@ project-root/
 |   |-- app.py [planned]
 |   |-- config.py [planned]
 |   |-- load_movebank_sqlite.py [current, wrapper]
+|   |-- verify_movebank_sqlite.py [current, wrapper]
 |   |
 |   |-- analysis/ [planned]
 |   |   |-- stats_models.py [planned]
@@ -37,6 +38,7 @@ project-root/
 |       `-- bird_bird.db [planned, SQLite]
 |
 |-- scripts/ [current]
+|   |-- verify_movebank_sqlite.py [current]
 |   |-- visualize_ebird.py [current]
 |   `-- visualize_movebank_gps.py [current]
 |
@@ -128,6 +130,27 @@ python scripts/load_movebank_sqlite.py --truncate-core
 Optional: skip normalized migration step:
 ```bash
 python scripts/load_movebank_sqlite.py --skip-normalized
+```
+
+## SQLite Verification
+Run verification checks (required tables, row counts, study linkage, normalized counts, and nickname backfill dry-run):
+```bash
+python scripts/verify_movebank_sqlite.py
+```
+
+Compatibility command (if your shell is in backend/):
+```bash
+python verify_movebank_sqlite.py
+```
+
+With Make (from project root):
+```bash
+make verify-sqlite
+```
+
+Optional: apply nickname backfill update after dry-run:
+```bash
+python scripts/verify_movebank_sqlite.py --apply-backfill
 ```
 
 ## Troubleshooting
