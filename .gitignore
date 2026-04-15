@@ -29,7 +29,7 @@ venv/
 env/
 ENV/
 .python-version
-
+.github\agents\mentor-defensive-coder.agent.md
 # ------------------------------
 # Environment and secrets
 # ------------------------------

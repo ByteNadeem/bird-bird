@@ -16,14 +16,18 @@ project-root/
 |   |   |-- plots/ [current]
 |   |   `-- schema/ [current]
 |   |       `-- movebank_core.sql [current]
+|   |       `-- migration_schema.sql [current]
 |   |
 |   |-- services/ [current]
 |   |   |-- ebird_api.py [current]
 |   |   `-- backend/ [current, candidate-removal]
 |   |       `-- data/raw/ [current, candidate-removal]
 |   |
-|   |-- app.py [planned]
+|   |-- app.py [current]
 |   |-- config.py [planned]
+|   |-- data_cleaning.py [current, wrapper]
+|   |-- data_coverage.py [current, wrapper]
+|   |-- init_migration_db.py [current, wrapper]
 |   |-- load_movebank_sqlite.py [current, wrapper]
 |   |-- verify_movebank_sqlite.py [current, wrapper]
 |   |
@@ -36,8 +40,12 @@ project-root/
 |   |
 |   `-- database/ [planned]
 |       `-- bird_bird.db [planned, SQLite]
+|       `-- migration.db [current, SQLite]
 |
 |-- scripts/ [current]
+|   |-- data_cleaning.py [current]
+|   |-- data_coverage.py [current]
+|   |-- init_migration_db.py [current]
 |   |-- verify_movebank_sqlite.py [current]
 |   |-- visualize_ebird.py [current]
 |   `-- visualize_movebank_gps.py [current]
@@ -81,6 +89,7 @@ project-root/
 ## SQLite Schema
 - Schema file location: backend/data/schema/movebank_core.sql
 - Normalization migration: backend/data/schema/movebank_normalized.sql
+- Migration schema: backend/data/schema/migration_schema.sql
 - Filename study mapping: backend/data/schema/movebank_study_filename_map.json
 - Planned SQLite database location: backend/database/bird_bird.db
 
@@ -151,6 +160,85 @@ make verify-sqlite
 Optional: apply nickname backfill update after dry-run:
 ```bash
 python scripts/verify_movebank_sqlite.py --apply-backfill
+```
+
+## Data Cleaning
+Clean and standardize raw Movebank event data (duplicates removed, timestamps normalized, coordinates validated):
+```bash
+python scripts/data_cleaning.py --replace-table
+```
+
+Compatibility command (if your shell is in backend/):
+```bash
+python data_cleaning.py --replace-table
+```
+
+With Make (from project root):
+```bash
+make clean-data
+```
+
+Default cleaned outputs:
+- CSV: backend/data/clean/movebank_events_cleaned.csv
+- SQLite table: cleaned_observations in backend/database/bird_bird.db
+
+## Data Coverage
+Generate data completeness metrics and summary report from cleaned CSV:
+```bash
+python scripts/data_coverage.py
+```
+
+Compatibility command (if your shell is in backend/):
+```bash
+python data_coverage.py
+```
+
+With Make (from project root):
+```bash
+make coverage-report
+```
+
+Default coverage outputs:
+- docs/coverage_report.md
+- docs/coverage_metrics.json
+
+## Migration DB (Story 3)
+Initialize a simple migration SQLite DB with `species` and `observations` tables, validated foreign keys, and test insert/query checks:
+```bash
+python scripts/init_migration_db.py --replace --seed-from-cleaned
+```
+
+Compatibility command (if your shell is in backend/):
+```bash
+python init_migration_db.py --replace --seed-from-cleaned
+```
+
+With Make (from project root):
+```bash
+make init-migration-db
+```
+
+Migration DB output:
+- backend/database/migration.db
+
+## API Endpoints (Story 4)
+Run the API server:
+```bash
+python backend/app.py
+```
+
+Endpoints:
+- `GET /api/species` returns species list (supports `?limit=`)
+- `GET /api/migration/` returns weekly aggregation (supports `?species_code=`, `?from=YYYY-MM-DD`, `?to=YYYY-MM-DD`, `?limit=`)
+
+Error responses return JSON:
+```json
+{"error": "...", "status": 400}
+```
+
+Quick smoke test without Postman:
+```bash
+make test-api
 ```
 
 ## Troubleshooting

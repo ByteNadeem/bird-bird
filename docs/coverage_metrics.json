@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-04-14 15:13:18 UTC",
+  "input_csv": "C:\\vs-projects\\bird-bird\\backend\\data\\clean\\movebank_events_cleaned.csv",
+  "threshold_pct": 90.0,
+  "status": "PASS",
+  "row_count": 80727,
+  "column_count": 5,
+  "total_cells": 403635,
+  "total_missing": 0,
+  "overall_missing_pct": 0.0,
+  "overall_coverage_pct": 100.0,
+  "per_column": [
+    {
+      "column": "event_timestamp",
+      "rows": 80727,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "coverage_pct": 100.0,
+      "non_missing_count": 80727
+    },
+    {
+      "column": "deployment_id",
+      "rows": 80727,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "coverage_pct": 100.0,
+      "non_missing_count": 80727
+    },
+    {
+      "column": "latitude",
+      "rows": 80727,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "coverage_pct": 100.0,
+      "non_missing_count": 80727
+    },
+    {
+      "column": "longitude",
+      "rows": 80727,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "coverage_pct": 100.0,
+      "non_missing_count": 80727
+    },
+    {
+      "column": "source_file",
+      "rows": 80727,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "coverage_pct": 100.0,
+      "non_missing_count": 80727
+    }
+  ]
+}
