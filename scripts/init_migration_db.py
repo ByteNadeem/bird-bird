@@ -10,6 +10,34 @@ DEFAULT_DB_PATH = PROJECT_ROOT / "backend" / "database" / "migration.db"
 DEFAULT_SCHEMA_PATH = PROJECT_ROOT / "backend" / "data" / "schema" / "migration_schema.sql"
 DEFAULT_CLEANED_CSV = PROJECT_ROOT / "backend" / "data" / "clean" / "movebank_events_cleaned.csv"
 
+# Fast local mapping inferred from event-count/time-range matches in raw files.
+DEPLOYMENT_SPECIES_MAP: dict[str, dict[str, object]] = {
+    "1424073923": {
+        "include": True,
+        "species_code": "eurcur",
+        "scientific_name": "Numenius arquata",
+        "common_name": "Eurasian Curlew",
+    },
+    "1855254629": {
+        "include": True,
+        "species_code": "eurcur",
+        "scientific_name": "Numenius arquata",
+        "common_name": "Eurasian Curlew",
+    },
+    "924684120": {
+        "include": True,
+        "species_code": "comsni",
+        "scientific_name": "Gallinago gallinago",
+        "common_name": "Common Snipe",
+    },
+    "1689055343": {
+        "include": False,
+        "species_code": "comcuc",
+        "scientific_name": "Cuculus canorus",
+        "common_name": "Common Cuckoo",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -39,6 +67,11 @@ def parse_args() -> argparse.Namespace:
         "--seed-from-cleaned",
         action="store_true",
         help="Load cleaned CSV rows into observations with temporary 'unknown' species",
+    )
+    parser.add_argument(
+        "--disable-deployment-species-map",
+        action="store_true",
+        help="Disable deployment_id species mapping and seed Movebank rows as unknown species",
     )
     return parser.parse_args()
 
@@ -86,19 +119,50 @@ def ensure_unknown_species(cur: sqlite3.Cursor) -> int:
     return int(row[0])
 
 
-def seed_from_cleaned_csv(cur: sqlite3.Cursor, cleaned_csv_path: Path) -> int:
+def ensure_species(cur: sqlite3.Cursor, species_code: str, scientific_name: str, common_name: str) -> int:
+    cur.execute(
+        """
+        INSERT INTO species (species_code, scientific_name, common_name)
+        VALUES (?, ?, ?)
+        ON CONFLICT(species_code) DO UPDATE SET
+            scientific_name = excluded.scientific_name,
+            common_name = excluded.common_name
+        """,
+        (species_code, scientific_name, common_name),
+    )
+    row = cur.execute("SELECT id FROM species WHERE species_code = ?", (species_code,)).fetchone()
+    if row is None:
+        raise RuntimeError(f"Failed to upsert species row for {species_code}")
+    return int(row[0])
+
+
+def seed_from_cleaned_csv(
+    cur: sqlite3.Cursor,
+    cleaned_csv_path: Path,
+    use_deployment_species_map: bool,
+) -> dict[str, int]:
     if not cleaned_csv_path.exists():
         raise FileNotFoundError(f"Cleaned CSV not found: {cleaned_csv_path}")
 
-    species_id = ensure_unknown_species(cur)
+    unknown_species_id = ensure_unknown_species(cur)
+    species_id_cache: dict[str, int] = {
+        "unknown": unknown_species_id,
+    }
 
-    inserted = 0
+    stats = {
+        "inserted": 0,
+        "mapped_target": 0,
+        "mapped_unknown": 0,
+        "skipped_non_target": 0,
+    }
+
     with cleaned_csv_path.open("r", encoding="utf-8", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
             event_timestamp = (row.get("event_timestamp") or "").strip()
             lat_text = (row.get("latitude") or "").strip()
             lon_text = (row.get("longitude") or "").strip()
+            deployment_id = (row.get("deployment_id") or "").strip()
 
             if not event_timestamp or not lat_text or not lon_text:
                 continue
@@ -109,6 +173,26 @@ def seed_from_cleaned_csv(cur: sqlite3.Cursor, cleaned_csv_path: Path) -> int:
                 week_start = get_week_start(event_timestamp)
             except ValueError:
                 continue
+
+            species_id = unknown_species_id
+            mapping = DEPLOYMENT_SPECIES_MAP.get(deployment_id) if use_deployment_species_map else None
+            if mapping is not None:
+                include = bool(mapping.get("include", True))
+                if not include:
+                    stats["skipped_non_target"] += 1
+                    continue
+
+                mapped_code = str(mapping["species_code"])
+                mapped_scientific = str(mapping["scientific_name"])
+                mapped_common = str(mapping["common_name"])
+                cached = species_id_cache.get(mapped_code)
+                if cached is None:
+                    cached = ensure_species(cur, mapped_code, mapped_scientific, mapped_common)
+                    species_id_cache[mapped_code] = cached
+                species_id = cached
+                stats["mapped_target"] += 1
+            else:
+                stats["mapped_unknown"] += 1
 
             cur.execute(
                 """
@@ -127,15 +211,15 @@ def seed_from_cleaned_csv(cur: sqlite3.Cursor, cleaned_csv_path: Path) -> int:
                     species_id,
                     event_timestamp,
                     week_start,
-                    (row.get("deployment_id") or "").strip() or None,
+                    deployment_id or None,
                     latitude,
                     longitude,
                     (row.get("source_file") or "").strip() or None,
                 ),
             )
-            inserted += cur.rowcount
+            stats["inserted"] += cur.rowcount
 
-    return inserted
+    return stats
 
 
 def validate_foreign_key(cur: sqlite3.Cursor) -> bool:
@@ -239,9 +323,13 @@ def main() -> int:
         apply_schema(con, schema_path, args.replace)
         cur = con.cursor()
 
-        seeded_count = 0
+        seed_stats = None
         if args.seed_from_cleaned:
-            seeded_count = seed_from_cleaned_csv(cur, cleaned_csv_path)
+            seed_stats = seed_from_cleaned_csv(
+                cur,
+                cleaned_csv_path,
+                use_deployment_species_map=not args.disable_deployment_species_map,
+            )
 
         fk_valid = validate_foreign_key(cur)
         insert_ok, sample_row = test_insert_query(cur)
@@ -260,7 +348,15 @@ def main() -> int:
     if sample_row is not None:
         print(f"test query sample row: {sample_row}")
     if args.seed_from_cleaned:
-        print(f"seeded observations from cleaned CSV: {seeded_count}")
+        assert seed_stats is not None
+        print(
+            "deployment species map: "
+            + ("disabled" if args.disable_deployment_species_map else "enabled")
+        )
+        print(f"seeded observations from cleaned CSV: {seed_stats['inserted']}")
+        print(f"mapped target-species rows: {seed_stats['mapped_target']}")
+        print(f"unmapped rows (kept as unknown): {seed_stats['mapped_unknown']}")
+        print(f"skipped non-target mapped rows: {seed_stats['skipped_non_target']}")
         print(f"cleaned CSV source: {cleaned_csv_path}")
 
     if not fk_valid or not insert_ok:

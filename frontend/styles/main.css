@@ -1,0 +1,328 @@
+:root {
+  --bg-top: #e9f7f2;
+  --bg-bottom: #fff3de;
+  --ink: #132016;
+  --muted: #4d5f52;
+  --accent: #0a7f64;
+  --accent-2: #d07a2f;
+  --panel: rgba(255, 255, 255, 0.82);
+  --panel-border: rgba(19, 32, 22, 0.15);
+  --radius: 18px;
+  --shadow: 0 14px 32px rgba(36, 56, 42, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(10, 127, 100, 0.18), transparent 33%),
+    radial-gradient(circle at 88% 15%, rgba(208, 122, 47, 0.16), transparent 30%),
+    linear-gradient(170deg, var(--bg-top), var(--bg-bottom));
+}
+
+.app-shell {
+  width: min(1120px, 94vw);
+  margin: 0 auto;
+  padding: 2.2rem 0 2.6rem;
+}
+
+.hero {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.2rem 1.5rem 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+  line-height: 1.12;
+  font-family: "Fraunces", serif;
+}
+
+.subtitle {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.control-bar {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: auto minmax(220px, 360px) 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.85rem 1rem;
+}
+
+.control-bar label {
+  font-weight: 700;
+}
+
+.control-label-wrap {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+}
+
+.tip-chip {
+  align-items: center;
+  background: rgba(10, 127, 100, 0.12);
+  border: 1px solid rgba(10, 127, 100, 0.4);
+  border-radius: 999px;
+  color: var(--accent);
+  cursor: help;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 1.05rem;
+  justify-content: center;
+  line-height: 1;
+  width: 1.05rem;
+}
+
+.control-bar select {
+  width: 100%;
+  font: inherit;
+  border-radius: 12px;
+  border: 1px solid rgba(19, 32, 22, 0.25);
+  padding: 0.5rem 0.65rem;
+  background: #ffffff;
+}
+
+.status {
+  margin: 0;
+  justify-self: end;
+  color: var(--accent);
+  font-weight: 500;
+  text-align: right;
+}
+
+.status-error {
+  color: #9f2e22;
+}
+
+.timeline-bar {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.75rem 1rem;
+}
+
+.timeline-bar label {
+  font-weight: 700;
+}
+
+.timeline-bar input[type="range"] {
+  accent-color: var(--accent);
+  width: 100%;
+}
+
+.timeline-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.grid-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.95rem 0.95rem 1rem;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 32, 22, 0.18);
+  padding: 0.17rem 0.58rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.canvas-placeholder {
+  margin-top: 0.75rem;
+  min-height: 340px;
+  border-radius: 14px;
+  border: 1px dashed rgba(19, 32, 22, 0.25);
+  background:
+    linear-gradient(120deg, rgba(10, 127, 100, 0.08), transparent 30%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(19, 32, 22, 0.04),
+      rgba(19, 32, 22, 0.04) 12px,
+      rgba(19, 32, 22, 0.01) 12px,
+      rgba(19, 32, 22, 0.01) 24px
+    );
+}
+
+#map {
+  border: 1px solid rgba(19, 32, 22, 0.2);
+  overflow: hidden;
+}
+
+#map.leaflet-container {
+  background: #deece5;
+}
+
+.map-legend {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(19, 32, 22, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(19, 32, 22, 0.2);
+  color: var(--ink);
+  font-size: 0.83rem;
+  line-height: 1.35;
+  padding: 0.5rem 0.6rem;
+}
+
+.map-legend strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.map-legend-source {
+  border-top: 1px solid rgba(19, 32, 22, 0.12);
+  color: var(--muted);
+  font-size: 0.76rem;
+  margin-top: 0.42rem;
+  padding-top: 0.34rem;
+}
+
+.map-legend-swatch {
+  border-radius: 999px;
+  display: inline-block;
+  flex: none;
+  height: 10px;
+  width: 10px;
+}
+
+.map-legend-route {
+  background: #0a7f64;
+}
+
+.map-legend-stop {
+  background: #d07a2f;
+}
+
+.chart-wrap {
+  position: relative;
+  padding: 0.45rem;
+}
+
+#trendChart {
+  display: block;
+  height: 100% !important;
+  max-height: 340px;
+  width: 100% !important;
+}
+
+.chart-status {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.chart-status-error {
+  color: #9f2e22;
+}
+
+@media (max-width: 930px) {
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .canvas-placeholder {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding-top: 1.1rem;
+  }
+
+  .hero,
+  .control-bar,
+  .panel {
+    border-radius: 14px;
+  }
+
+  .control-bar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .timeline-bar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .timeline-label {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .status {
+    justify-self: start;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+}

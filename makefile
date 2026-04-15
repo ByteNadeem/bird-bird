@@ -1,4 +1,4 @@
-.PHONY: help run spplist recent recent-species load-sqlite verify-sqlite clean-data coverage-report init-migration-db run-api test-api
+.PHONY: help run spplist recent recent-species load-sqlite verify-sqlite clean-data coverage-report init-migration-db load-ebird run-api test-api
 
 PY ?= python
 SCRIPT := backend/services/ebird_api.py
@@ -19,6 +19,7 @@ help:
 	@echo "  make clean-data"
 	@echo "  make coverage-report"
 	@echo "  make init-migration-db"
+	@echo "  make load-ebird"
 	@echo "  make run-api"
 	@echo "  make test-api"
 	@echo ""
@@ -50,6 +51,9 @@ coverage-report:
 
 init-migration-db:
 	$(PY) scripts/init_migration_db.py --replace --seed-from-cleaned
+
+load-ebird:
+	$(PY) scripts/load_ebird_to_migration.py
 
 run-api:
 	$(PY) backend/app.py

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bird-bird | Migration Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/ui/styles/main.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero" aria-label="Page header">
+      <p class="eyebrow">Bird Migration Explorer</p>
+      <h1>Track seasonal movement patterns with weekly migration data.</h1>
+      <p class="subtitle">
+        Start by choosing a species. Map and chart containers are ready for route and trend stories.
+      </p>
+    </header>
+
+    <section class="control-bar" aria-label="Filters">
+      <div class="control-label-wrap">
+        <label for="speciesSelect">Species</label>
+        <span
+          id="splitFormatTip"
+          class="tip-chip"
+          role="note"
+          aria-label="Route split information"
+          title="Route points use a recent/historical sample split."
+        >?</span>
+      </div>
+      <select id="speciesSelect" name="species">
+        <option value="">Loading species...</option>
+      </select>
+      <p id="apiStatus" class="status" role="status" aria-live="polite">Connecting to API...</p>
+    </section>
+
+    <section class="timeline-bar" aria-label="Timeline controls">
+      <label for="timelineSlider">Timeline</label>
+      <input id="timelineSlider" type="range" min="0" max="0" value="0" step="1" disabled />
+      <p id="timelineLabel" class="timeline-label">Waiting for weekly data...</p>
+    </section>
+
+    <section class="grid-layout" aria-label="Visualisation containers">
+      <article class="panel map-panel" aria-label="Map container">
+        <div class="panel-head">
+          <h2>Migration Map</h2>
+          <span class="badge">Live routes</span>
+        </div>
+        <div id="map" class="canvas-placeholder" aria-label="Interactive migration map"></div>
+      </article>
+
+      <article class="panel chart-panel" aria-label="Chart container">
+        <div class="panel-head">
+          <h2>Weekly Trend Chart</h2>
+          <span class="badge">Live trends</span>
+        </div>
+        <div id="chartContainer" class="canvas-placeholder chart-wrap">
+          <canvas id="trendChart" aria-label="Weekly migration trend line chart"></canvas>
+        </div>
+        <p id="chartStatus" class="chart-status" role="status" aria-live="polite">Waiting for species selection...</p>
+      </article>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/ui/scripts/map.js"></script>
+  <script src="/ui/scripts/charts.js"></script>
+</body>
+</html>
