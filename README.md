@@ -213,6 +213,12 @@ Initialize a simple migration SQLite DB with `species` and `observations` tables
 python scripts/init_migration_db.py --replace --seed-from-cleaned
 ```
 
+Note: when `--seed-from-cleaned` is used, eBird JSON observations are also integrated by default so species and routes are combined instead of replaced.
+To skip that integration step:
+```bash
+python scripts/init_migration_db.py --replace --seed-from-cleaned --skip-ebird
+```
+
 Compatibility command (if your shell is in backend/):
 ```bash
 python init_migration_db.py --replace --seed-from-cleaned

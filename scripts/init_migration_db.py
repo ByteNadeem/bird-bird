@@ -4,11 +4,15 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from load_ebird_to_migration import ingest_file as ingest_ebird_file
+from load_ebird_to_migration import resolve_files as resolve_ebird_files
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "backend" / "database" / "migration.db"
 DEFAULT_SCHEMA_PATH = PROJECT_ROOT / "backend" / "data" / "schema" / "migration_schema.sql"
 DEFAULT_CLEANED_CSV = PROJECT_ROOT / "backend" / "data" / "clean" / "movebank_events_cleaned.csv"
+DEFAULT_EBIRD_GLOB = "backend/data/raw/ebird_*.json"
 
 # Fast local mapping inferred from event-count/time-range matches in raw files.
 DEPLOYMENT_SPECIES_MAP: dict[str, dict[str, object]] = {
@@ -95,6 +99,17 @@ def parse_args() -> argparse.Namespace:
         "--disable-deployment-species-map",
         action="store_true",
         help="Disable deployment_id species mapping and seed Movebank rows as unknown species",
+    )
+    parser.add_argument(
+        "--skip-ebird",
+        action="store_true",
+        help="Skip eBird integration step after Movebank cleaned seeding",
+    )
+    parser.add_argument(
+        "--ebird-input-glob",
+        action="append",
+        default=[DEFAULT_EBIRD_GLOB],
+        help="Glob pattern for eBird JSON files (repeatable)",
     )
     return parser.parse_args()
 
@@ -314,6 +329,37 @@ def seed_from_cleaned_csv(
     return stats
 
 
+def seed_from_ebird(cur: sqlite3.Cursor, ebird_globs: list[str]) -> dict[str, int]:
+    files = resolve_ebird_files(ebird_globs)
+
+    totals = {
+        "files": 0,
+        "source_rows": 0,
+        "valid_rows": 0,
+        "inserted_rows": 0,
+        "invalid_rows": 0,
+        "species_touched": 0,
+    }
+
+    if not files:
+        return totals
+
+    species_cache: dict[str, int] = {}
+    for file_path in files:
+        summary = ingest_ebird_file(cur, file_path, species_cache)
+        if summary["source_rows"] == 0:
+            continue
+
+        totals["files"] += 1
+        totals["source_rows"] += summary["source_rows"]
+        totals["valid_rows"] += summary["valid_rows"]
+        totals["inserted_rows"] += summary["inserted_rows"]
+        totals["invalid_rows"] += summary["invalid_rows"]
+
+    totals["species_touched"] = len(species_cache)
+    return totals
+
+
 def validate_foreign_key(cur: sqlite3.Cursor) -> bool:
     try:
         cur.execute(
@@ -416,12 +462,16 @@ def main() -> int:
         cur = con.cursor()
 
         seed_stats = None
+        ebird_stats = None
         if args.seed_from_cleaned:
             seed_stats = seed_from_cleaned_csv(
                 cur,
                 cleaned_csv_path,
                 use_deployment_species_map=not args.disable_deployment_species_map,
             )
+
+            if not args.skip_ebird:
+                ebird_stats = seed_from_ebird(cur, args.ebird_input_glob)
 
         fk_valid = validate_foreign_key(cur)
         insert_ok, sample_row = test_insert_query(cur)
@@ -451,6 +501,16 @@ def main() -> int:
         print(f"skipped non-target mapped rows: {seed_stats['skipped_non_target']}")
         print(f"individual profiles upserted: {seed_stats['profiles_upserted']}")
         print(f"cleaned CSV source: {cleaned_csv_path}")
+        if args.skip_ebird:
+            print("eBird integration: skipped")
+        else:
+            assert ebird_stats is not None
+            print(
+                "eBird integration: files="
+                f"{ebird_stats['files']} source={ebird_stats['source_rows']} "
+                f"valid={ebird_stats['valid_rows']} inserted={ebird_stats['inserted_rows']} "
+                f"invalid={ebird_stats['invalid_rows']} species={ebird_stats['species_touched']}"
+            )
 
     if not fk_valid or not insert_ok:
         return 1
