@@ -10,8 +10,8 @@ on:
     inputs:
       run_weekly_refresh:
         description: "Also run the weekly refresh pipeline"
-        required: false
-        default: "false"
+        required: true 
+        default: "true"
   schedule:
     # Every Monday at 03:17 UTC
     - cron: "17 3 * * 1"
