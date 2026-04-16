@@ -284,6 +284,82 @@ h1 {
   color: #9f2e22;
 }
 
+.collectibles-layout {
+  margin-top: 1rem;
+}
+
+.collectibles-status {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 0.65rem 0 0;
+}
+
+.collectibles-status.is-error {
+  color: #9f2e22;
+}
+
+.collectibles-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.7rem;
+}
+
+.collectible-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(19, 32, 22, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(36, 56, 42, 0.08);
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.72rem 0.75rem;
+}
+
+.collectible-head {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.collectible-name {
+  font-family: "Fraunces", serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.collectible-tier {
+  border-radius: 999px;
+  border: 1px solid rgba(10, 127, 100, 0.28);
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.12rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.collectible-species {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.collectible-meta {
+  color: var(--ink);
+  display: grid;
+  font-size: 0.83rem;
+  gap: 0.15rem;
+}
+
+.collectible-empty {
+  border: 1px dashed rgba(19, 32, 22, 0.28);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 0.9rem;
+}
+
 @media (max-width: 930px) {
   .grid-layout {
     grid-template-columns: 1fr;
@@ -291,6 +367,10 @@ h1 {
 
   .canvas-placeholder {
     min-height: 280px;
+  }
+
+  .collectibles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -324,5 +404,9 @@ h1 {
     justify-self: start;
     text-align: left;
     font-size: 0.95rem;
+  }
+
+  .collectibles-grid {
+    grid-template-columns: 1fr;
   }
 }

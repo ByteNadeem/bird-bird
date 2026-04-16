@@ -38,6 +38,29 @@ DEPLOYMENT_SPECIES_MAP: dict[str, dict[str, object]] = {
     },
 }
 
+# Optional identity hints used to present deployment-level collectibles.
+# These are intentionally lightweight and can be expanded over time.
+DEPLOYMENT_IDENTITY_MAP: dict[str, dict[str, str]] = {
+    "924684120": {
+        "individual_id": "924681430",
+        "nick_name": "Pablo",
+        "local_identifier": "Pablo",
+        "source_label": "manual-seed",
+    },
+    "1424073923": {
+        "individual_id": "1423974146",
+        "nick_name": "",
+        "local_identifier": "Curlew-4309023-Schillig",
+        "source_label": "manual-seed",
+    },
+    "1855254629": {
+        "individual_id": "1855254620",
+        "nick_name": "Peter",
+        "local_identifier": "L178463",
+        "source_label": "manual-seed",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -92,6 +115,7 @@ def apply_schema(con: sqlite3.Connection, schema_path: Path, replace: bool) -> N
 
     if replace:
         cur.execute("DROP TABLE IF EXISTS observations")
+        cur.execute("DROP TABLE IF EXISTS individual_profiles")
         cur.execute("DROP TABLE IF EXISTS species")
 
     sql_text = schema_path.read_text(encoding="utf-8")
@@ -136,6 +160,62 @@ def ensure_species(cur: sqlite3.Cursor, species_code: str, scientific_name: str,
     return int(row[0])
 
 
+def _text_or_none(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def upsert_individual_profile(
+    cur: sqlite3.Cursor,
+    deployment_id: str,
+    species_id: int,
+    mapping: dict[str, object] | None,
+) -> None:
+    if not deployment_id:
+        return
+
+    hint = mapping or {}
+    individual_id = _text_or_none(hint.get("individual_id"))
+    nick_name = _text_or_none(hint.get("nick_name"))
+    local_identifier = _text_or_none(hint.get("local_identifier"))
+    source_label = _text_or_none(hint.get("source_label")) or "deployment-key"
+
+    display_name = nick_name or local_identifier or f"Bird {deployment_id}"
+
+    cur.execute(
+        """
+        INSERT INTO individual_profiles (
+            deployment_id,
+            individual_id,
+            species_id,
+            nick_name,
+            local_identifier,
+            display_name,
+            source_label
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(deployment_id) DO UPDATE SET
+            individual_id = COALESCE(excluded.individual_id, individual_profiles.individual_id),
+            species_id = COALESCE(excluded.species_id, individual_profiles.species_id),
+            nick_name = COALESCE(excluded.nick_name, individual_profiles.nick_name),
+            local_identifier = COALESCE(excluded.local_identifier, individual_profiles.local_identifier),
+            display_name = excluded.display_name,
+            source_label = excluded.source_label
+        """,
+        (
+            deployment_id,
+            individual_id,
+            species_id,
+            nick_name,
+            local_identifier,
+            display_name,
+            source_label,
+        ),
+    )
+
+
 def seed_from_cleaned_csv(
     cur: sqlite3.Cursor,
     cleaned_csv_path: Path,
@@ -154,7 +234,9 @@ def seed_from_cleaned_csv(
         "mapped_target": 0,
         "mapped_unknown": 0,
         "skipped_non_target": 0,
+        "profiles_upserted": 0,
     }
+    seen_profile_deployments: set[str] = set()
 
     with cleaned_csv_path.open("r", encoding="utf-8", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
@@ -193,6 +275,16 @@ def seed_from_cleaned_csv(
                 stats["mapped_target"] += 1
             else:
                 stats["mapped_unknown"] += 1
+
+            if deployment_id and deployment_id not in seen_profile_deployments:
+                upsert_individual_profile(
+                    cur,
+                    deployment_id,
+                    species_id,
+                    DEPLOYMENT_IDENTITY_MAP.get(deployment_id),
+                )
+                seen_profile_deployments.add(deployment_id)
+                stats["profiles_upserted"] += 1
 
             cur.execute(
                 """
@@ -357,6 +449,7 @@ def main() -> int:
         print(f"mapped target-species rows: {seed_stats['mapped_target']}")
         print(f"unmapped rows (kept as unknown): {seed_stats['mapped_unknown']}")
         print(f"skipped non-target mapped rows: {seed_stats['skipped_non_target']}")
+        print(f"individual profiles upserted: {seed_stats['profiles_upserted']}")
         print(f"cleaned CSV source: {cleaned_csv_path}")
 
     if not fk_valid or not insert_ok:

@@ -1,5 +1,10 @@
 ﻿# bird-bird
 
+## Introduction 
+
+## Business Value / Purpose
+This project explores how emerging technologies—edge devices, IoT sensors, microcontrollers, and high‑definition imaging—can power a Pokémon‑style “snap them all” experience that gamifies wildlife observation. By turning species documentation into an engaging, collectible activity, the initiative aims to boost biodiversity data collection while increasing tourism and footfall in rural areas.
+
 ## Purpose
 This repository structure is a development roadmap.
 It tracks what already exists and what is planned, so we can keep direction and project integrity over time.
@@ -251,3 +256,5 @@ Find studies for target taxa:
 ```bash
 python movebank_api.py --mode studies-query --sensor-name GPS --require-download-access --taxon-query "Scolopax rusticola" --taxon-query "Gallinago gallinago" --taxon-query "Numenius arquata"
 ```
+
+

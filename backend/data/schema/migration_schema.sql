@@ -21,6 +21,18 @@ CREATE TABLE IF NOT EXISTS observations (
     UNIQUE (species_id, event_timestamp, deployment_id, latitude, longitude)
 );
 
+CREATE TABLE IF NOT EXISTS individual_profiles (
+    id INTEGER PRIMARY KEY,
+    deployment_id TEXT NOT NULL UNIQUE,
+    individual_id TEXT UNIQUE,
+    species_id INTEGER REFERENCES species(id) ON UPDATE CASCADE ON DELETE SET NULL,
+    nick_name TEXT,
+    local_identifier TEXT,
+    display_name TEXT NOT NULL,
+    source_label TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_species_code
     ON species (species_code);
 
@@ -32,3 +44,9 @@ CREATE INDEX IF NOT EXISTS idx_observations_week_start
 
 CREATE INDEX IF NOT EXISTS idx_observations_timestamp
     ON observations (event_timestamp);
+
+CREATE INDEX IF NOT EXISTS idx_individual_profiles_species_id
+    ON individual_profiles (species_id);
+
+CREATE INDEX IF NOT EXISTS idx_individual_profiles_display_name
+    ON individual_profiles (display_name);

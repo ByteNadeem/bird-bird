@@ -559,6 +559,108 @@ def create_app() -> Flask:
         _set_cached_payload(cache_key, response_payload)
         return jsonify(_with_cache_meta(response_payload, cache_hit=False))
 
+    @app.get("/api/internal/collectibles/individuals")
+    def get_collectible_individuals():
+        start = time.perf_counter()
+
+        limit = parse_int_arg("limit", default=200, minimum=1, maximum=5000)
+        species_code = request.args.get("species_code", "").strip() or None
+
+        cache_key = _build_cache_key("collectibles_individuals", (limit, species_code))
+        cached = _get_cached_payload(cache_key)
+        if cached is not None:
+            return jsonify(_with_cache_meta(cached, cache_hit=True))
+
+        table_exists = get_db().execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='individual_profiles'"
+        ).fetchone()
+        if table_exists is None:
+            raise ApiError(
+                "individual profiles table not found; run migration DB initialization first",
+                status_code=500,
+            )
+
+        filters: list[str] = []
+        params: list[object] = []
+        if species_code is not None:
+            filters.append("s.species_code = ?")
+            params.append(species_code)
+
+        where_clause = ""
+        if filters:
+            where_clause = "WHERE " + " AND ".join(filters)
+
+        params.append(limit)
+
+        rows = get_db().execute(
+            f"""
+            SELECT
+                p.id,
+                p.deployment_id,
+                p.individual_id,
+                p.nick_name,
+                p.local_identifier,
+                p.display_name,
+                p.source_label,
+                s.species_code,
+                s.common_name,
+                COUNT(o.id) AS observation_count,
+                MIN(o.event_timestamp) AS first_seen,
+                MAX(o.event_timestamp) AS last_seen,
+                COUNT(DISTINCT o.week_start) AS active_weeks
+            FROM individual_profiles p
+            LEFT JOIN observations o ON o.deployment_id = p.deployment_id
+            LEFT JOIN species s ON s.id = p.species_id
+            {where_clause}
+            GROUP BY
+                p.id,
+                p.deployment_id,
+                p.individual_id,
+                p.nick_name,
+                p.local_identifier,
+                p.display_name,
+                p.source_label,
+                s.species_code,
+                s.common_name
+            ORDER BY observation_count DESC, p.display_name
+            LIMIT ?
+            """,
+            tuple(params),
+        ).fetchall()
+
+        elapsed_ms = round((time.perf_counter() - start) * 1000, 3)
+
+        payload = [
+            {
+                "id": int(row["id"]),
+                "deployment_id": row["deployment_id"],
+                "individual_id": row["individual_id"],
+                "nick_name": row["nick_name"],
+                "local_identifier": row["local_identifier"],
+                "display_name": row["display_name"],
+                "source_label": row["source_label"],
+                "species_code": row["species_code"],
+                "common_name": row["common_name"],
+                "observation_count": int(row["observation_count"]),
+                "active_weeks": int(row["active_weeks"]),
+                "first_seen": row["first_seen"],
+                "last_seen": row["last_seen"],
+            }
+            for row in rows
+        ]
+
+        response_payload = {
+            "data": payload,
+            "meta": {
+                "count": len(payload),
+                "limit": limit,
+                "species_code": species_code,
+                "query_ms": elapsed_ms,
+            },
+        }
+        _set_cached_payload(cache_key, response_payload)
+        return jsonify(_with_cache_meta(response_payload, cache_hit=False))
+
     @app.get("/health")
     def health_check():
         return jsonify({"status": "ok"})

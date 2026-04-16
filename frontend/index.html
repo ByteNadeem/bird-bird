@@ -63,10 +63,24 @@
         <p id="chartStatus" class="chart-status" role="status" aria-live="polite">Waiting for species selection...</p>
       </article>
     </section>
+
+    <section class="collectibles-layout" aria-label="Collectible bird cards">
+      <article class="panel collectibles-panel" aria-label="Collectible cards panel">
+        <div class="panel-head">
+          <h2>Collector Cards (Internal Preview)</h2>
+          <span class="badge">Nickname view</span>
+        </div>
+        <p id="collectiblesStatus" class="collectibles-status" role="status" aria-live="polite">
+          Waiting for species selection...
+        </p>
+        <div id="collectiblesGrid" class="collectibles-grid" aria-label="Collectible cards list"></div>
+      </article>
+    </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="/ui/scripts/map.js"></script>
   <script src="/ui/scripts/charts.js"></script>
+  <script src="/ui/scripts/collectibles.js"></script>
 </body>
 </html>
