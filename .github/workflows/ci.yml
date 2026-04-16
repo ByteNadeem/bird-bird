@@ -55,6 +55,8 @@ jobs:
 
       - name: API smoke checks
         shell: python
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           from backend.app import app
 
@@ -108,6 +110,8 @@ jobs:
 
       - name: API call checks after refresh
         shell: python
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           from backend.app import app
 
