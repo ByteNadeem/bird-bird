@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-04-17 12:27:49 UTC",
+  "db_path": "C:\\vs-projects\\bird-bird\\backend\\database\\migration.db",
+  "rows_used": 75,
+  "species_count": 1,
+  "deployment_count": 23,
+  "formula": "day_of_year ~ centered_year",
+  "model_requested": "both",
+  "models_succeeded": [
+    "ols",
+    "mixed"
+  ],
+  "model_errors": {},
+  "qc": {
+    "source_rows": 80650,
+    "rows_after_cleaning": 80650,
+    "rows_after_grouping": 114
+  },
+  "filter_summary": {
+    "rows_after_filters": 75,
+    "species_count": 1,
+    "deployment_count": 23
+  },
+  "climate_vars": [],
+  "climate_coverage": {},
+  "plot_files": [
+    "C:\\vs-projects\\bird-bird\\backend\\data\\plots\\migration_timing_trends.png",
+    "C:\\vs-projects\\bird-bird\\backend\\data\\plots\\migration_timing_residuals.png"
+  ],
+  "effects": [
+    {
+      "model": "ols",
+      "term": "Intercept",
+      "estimate": 170.36823402997985,
+      "std_error": 7.104758764748592,
+      "p_value": 4.556186646772063e-127,
+      "ci_lower": 156.44316273222734,
+      "ci_upper": 184.29330532773236,
+      "nobs": 75.0,
+      "aic": 793.8652070351785,
+      "bic": 798.5001832622511,
+      "converged": true
+    },
+    {
+      "model": "ols",
+      "term": "centered_year",
+      "estimate": -12.070836951763182,
+      "std_error": 1.219781545447596,
+      "p_value": 4.3368903872816866e-23,
+      "ci_lower": -14.461564849847077,
+      "ci_upper": -9.680109053679287,
+      "nobs": 75.0,
+      "aic": 793.8652070351785,
+      "bic": 798.5001832622511,
+      "converged": true
+    },
+    {
+      "model": "mixed",
+      "term": "Intercept",
+      "estimate": 71.26663974035579,
+      "std_error": 4.012717950172001,
+      "p_value": 1.4374298986111517e-70,
+      "ci_lower": 63.40185707790127,
+      "ci_upper": 79.1314224028103,
+      "nobs": 75.0,
+      "aic": -Infinity,
+      "bic": -Infinity,
+      "converged": true
+    },
+    {
+      "model": "mixed",
+      "term": "centered_year",
+      "estimate": -0.9880642328485774,
+      "std_error": 10.183542559540939,
+      "p_value": 0.922706071838076,
+      "ci_lower": -20.947440884579656,
+      "ci_upper": 18.971312418882505,
+      "nobs": 75.0,
+      "aic": -Infinity,
+      "bic": -Infinity,
+      "converged": true
+    },
+    {
+      "model": "mixed",
+      "term": "Group Var",
+      "estimate": 0.0,
+      "std_error": 1.0517588452074412e+21,
+      "p_value": 1.0,
+      "ci_lower": -2.0614094570280224e+21,
+      "ci_upper": 2.0614094570280224e+21,
+      "nobs": 75.0,
+      "aic": -Infinity,
+      "bic": -Infinity,
+      "converged": true
+    }
+  ]
+}
