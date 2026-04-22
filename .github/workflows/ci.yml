@@ -135,9 +135,76 @@ jobs:
         run: |
           python -m pip install pytest
 
+      - name: Fetch Movebank raw inputs for weekly refresh
+        shell: python
+        env:
+          MOVEBANK_USERNAME: ${{ secrets.MOVEBANK_USERNAME }}
+          MOVEBANK_PASSWORD: ${{ secrets.MOVEBANK_PASSWORD }}
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          from movebank_api import get_individuals_by_study, get_studies, filter_studies
+
+          username = (os.getenv("MOVEBANK_USERNAME") or "").strip()
+          password = (os.getenv("MOVEBANK_PASSWORD") or "").strip()
+          if not username or not password:
+              raise SystemExit("Missing MOVEBANK_USERNAME or MOVEBANK_PASSWORD secret.")
+
+          studies = get_studies(
+              username=username,
+              password=password,
+              timeout_seconds=60,
+          )
+
+          filtered = filter_studies(
+              studies,
+              sensor_name="GPS",
+              require_download_access=True,
+              taxon_queries=[
+                  "Scolopax rusticola",
+                  "Gallinago gallinago",
+                  "Numenius arquata",
+              ],
+          )
+
+          if not filtered:
+              raise SystemExit("No studies matched weekly refresh filters.")
+
+          out_dir = Path("backend/data/raw")
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          studies_path = out_dir / "movebank_studies_weekly.json"
+          studies_path.write_text(json.dumps(filtered, indent=2), encoding="utf-8")
+
+          study_ids = sorted({int(s["id"]) for s in filtered if s.get("id")})
+
+          all_individuals = []
+          for sid in study_ids:
+              individuals = get_individuals_by_study(
+                  study_id=sid,
+                  username=username,
+                  password=password,
+                  timeout_seconds=60,
+              )
+              for row in individuals:
+                  # Guarantee study_id for downstream loader consistency.
+                  row["study_id"] = row.get("study_id") or str(sid)
+              all_individuals.extend(individuals)
+
+          if not all_individuals:
+              raise SystemExit("No individuals fetched for filtered studies.")
+
+          individuals_path = out_dir / "movebank_individuals_weekly.json"
+          individuals_path.write_text(json.dumps(all_individuals, indent=2), encoding="utf-8")
+
+          print(f"Saved studies: {len(filtered)} -> {studies_path}")
+          print(f"Saved individuals: {len(all_individuals)} -> {individuals_path}")
+
       - name: Refresh Movebank SQLite core tables
         run: |
-          python scripts/load_movebank_sqlite.py --truncate-core
+          python scripts/load_movebank_sqlite.py --truncate-core --study-glob backend/data/raw/movebank_studies_weekly.json --individual-glob backend/data/raw/movebank_individuals_weekly.json
           python scripts/verify_movebank_sqlite.py
 
       - name: Rebuild cleaned and migration layers (integrated)
