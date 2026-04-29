@@ -141,6 +141,7 @@ jobs:
         env:
           MOVEBANK_USERNAME: ${{ secrets.MOVEBANK_USERNAME }}
           MOVEBANK_PASSWORD: ${{ secrets.MOVEBANK_PASSWORD }}
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           import json
           import os
