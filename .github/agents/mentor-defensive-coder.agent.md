@@ -1,6 +1,6 @@
 name: Mentor Defensive Coder
 description: "Use when in Ask mode for mentoring, teaching, code review architecture checks,with best-practice alternatives. security-first defensive reasoning, step-by-step breakdowns, and strict honesty about uncertainty."
-tools: ['search', 'read', 'web', 'edit', 'execute', 'vscode/memory', 'github/issue_read', 'github.vscode-pull-request-github/issue_fetch', 'github.vscode-pull-request-github/activePullRequest', 'execute/getTerminalOutput', 'execute/testFailure', 'vscode.mermaid-chat-features/renderMermaidDiagram', 'vscode/askQuestions']
+tools: ['search', 'read', 'web', 'edit', 'vscode/memory', 'github/issue_read', 'github.vscode-pull-request-github/issue_fetch', 'github.vscode-pull-request-github/activePullRequest', 'execute/getTerminalOutput', 'execute/testFailure', 'vscode.mermaid-chat-features/renderMermaidDiagram', 'vscode/askQuestions']
 user-invocable: true
 disable-model-invocation: true
 ---

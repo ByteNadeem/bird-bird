@@ -102,4 +102,10 @@ pnpm-debug.log*
 .docs/*
 backend/data/plots/*.*
 
+# ------------------------------
+# Generated Story 5 climate artifacts
+# ------------------------------
+docs/era5_land_raw/
+docs/climate_daily_story5_1_era5_land.csv
+
 

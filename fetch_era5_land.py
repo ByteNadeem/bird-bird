@@ -1,6 +1,8 @@
 import argparse
 import calendar
+import shutil
 import sqlite3
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -34,6 +36,21 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Redownload NetCDF files even if they already exist",
     )
+    parser.add_argument(
+        "--from-date",
+        default=None,
+        help="Optional start date YYYY-MM-DD (overrides DB min)",
+    )
+    parser.add_argument(
+        "--to-date",
+        default=None,
+        help="Optional end date YYYY-MM-DD (overrides DB max)",
+    )
+    parser.add_argument(
+        "--resume-only",
+        action="store_true",
+        help="Only submit missing months and exit",
+    )
     return parser.parse_args()
 
 
@@ -43,6 +60,24 @@ def ensure_cds_config() -> None:
         raise FileNotFoundError(
             "Missing CDS API config at ~/.cdsapirc. Set your Copernicus API key before running."
         )
+
+
+def resolve_netcdf_path(nc_path: Path) -> Path:
+    if not zipfile.is_zipfile(nc_path):
+        return nc_path
+
+    with zipfile.ZipFile(nc_path) as archive:
+        candidates = [name for name in archive.namelist() if name.endswith((".nc", ".nc4"))]
+        if not candidates:
+            raise ValueError(f"No NetCDF file found inside {nc_path.name}.")
+
+        entry = candidates[0]
+        extracted = nc_path.with_name(f"{nc_path.stem}_{Path(entry).name}")
+        if not extracted.exists() or extracted.stat().st_mtime < nc_path.stat().st_mtime:
+            with archive.open(entry) as src, open(extracted, "wb") as dest:
+                shutil.copyfileobj(src, dest)
+
+    return extracted
 
 
 def load_bounds(db_path: Path) -> tuple[str, str, datetime, datetime, float, float]:
@@ -64,6 +99,15 @@ def load_bounds(db_path: Path) -> tuple[str, str, datetime, datetime, float, flo
     date_min = datetime.strptime(date_min_str, "%Y-%m-%d")
     date_max = datetime.strptime(date_max_str, "%Y-%m-%d")
     return date_min_str, date_max_str, date_min, date_max, float(avg_lat), float(avg_lon)
+
+
+def parse_date(value: str | None, label: str) -> datetime | None:
+    if value is None:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError(f"{label} must be in YYYY-MM-DD format.") from exc
 
 
 def month_iterator(start: datetime, end: datetime):
@@ -124,9 +168,21 @@ def build_daily_from_nc(
     lat: float,
     lon: float,
 ) -> pd.DataFrame:
-    ds = xr.open_dataset(nc_path)
+    nc_to_open = resolve_netcdf_path(nc_path)
+    ds = xr.open_dataset(nc_to_open, engine="netcdf4")
     try:
-        ds = ds.sel(time=slice(start, end))
+        time_dim = None
+        if "time" in ds.dims:
+            time_dim = "time"
+        elif "valid_time" in ds.dims:
+            time_dim = "valid_time"
+
+        if not time_dim:
+            raise ValueError(f"No time dimension found in {nc_path.name}.")
+
+        ds = ds.sel({time_dim: slice(start, end)})
+        if time_dim != "time":
+            ds = ds.rename({time_dim: "time"})
         ds = ds.sel(latitude=lat, longitude=lon, method="nearest")
 
         if "t2m" not in ds or "tp" not in ds:
@@ -158,11 +214,44 @@ def main() -> int:
 
     date_min_str, date_max_str, date_min, date_max, lat, lon = load_bounds(db_path)
 
+    from_date = parse_date(args.from_date, "--from-date")
+    to_date = parse_date(args.to_date, "--to-date")
+    if from_date is not None:
+        date_min = from_date
+        date_min_str = from_date.strftime("%Y-%m-%d")
+    if to_date is not None:
+        date_max = to_date
+        date_max_str = to_date.strftime("%Y-%m-%d")
+
+    if date_min > date_max:
+        raise ValueError("--from-date must be on or before --to-date.")
+
     area = [lat + 0.1, lon - 0.1, lat - 0.1, lon + 0.1]
     client = cdsapi.Client()
 
+    months = list(month_iterator(date_min, date_max))
+    missing_months = []
+    for year, month, day_start, day_end in months:
+        raw_path = raw_dir / f"era5_land_{year}_{month:02d}.nc"
+        extracted_path = raw_dir / f"era5_land_{year}_{month:02d}_data_0.nc"
+        if not raw_path.exists() and not extracted_path.exists():
+            missing_months.append((year, month, day_start, day_end))
+
+    if args.resume_only:
+        print(f"Missing months: {len(missing_months)}")
+        if missing_months:
+            missing_list = ", ".join(f"{year}-{month:02d}" for year, month, _, _ in missing_months)
+            print(f"Missing list: {missing_list}")
+            for year, month, day_start, day_end in missing_months:
+                nc_path = raw_dir / f"era5_land_{year}_{month:02d}.nc"
+                download_month(client, year, month, day_start, day_end, area, nc_path, args.overwrite)
+            print("Submitted missing months. Re-run without --resume-only to build CSV.")
+        else:
+            print("No missing months in selected date window.")
+        return 0
+
     daily_frames = []
-    for year, month, day_start, day_end in month_iterator(date_min, date_max):
+    for year, month, day_start, day_end in months:
         nc_path = raw_dir / f"era5_land_{year}_{month:02d}.nc"
         download_month(client, year, month, day_start, day_end, area, nc_path, args.overwrite)
         daily_frames.append(build_daily_from_nc(nc_path, date_min, date_max, lat, lon))
