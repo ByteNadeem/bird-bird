@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14 15:13:18 UTC",
+  "generated_at": "2026-05-01 10:18:19 UTC",
   "input_csv": "C:\\vs-projects\\bird-bird\\backend\\data\\clean\\movebank_events_cleaned.csv",
   "threshold_pct": 90.0,
   "status": "PASS",

@@ -1,6 +1,6 @@
 # Data Coverage Report
 
-- Generated at: 2026-04-14 15:13:18 UTC
+- Generated at: 2026-05-01 10:18:19 UTC
 - Input CSV: C:\vs-projects\bird-bird\backend\data\clean\movebank_events_cleaned.csv
 - Rows: 80727
 - Columns: 5

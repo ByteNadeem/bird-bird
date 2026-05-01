@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS individual_sensors (
 	FOREIGN KEY (individual_id) REFERENCES individuals(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+BEGIN;
+
 -- Refresh normalized rows from current core tables.
 DELETE FROM study_taxa;
 DELETE FROM study_sensors;
@@ -86,3 +88,9 @@ CREATE INDEX IF NOT EXISTS idx_study_sensors_sensor
 
 CREATE INDEX IF NOT EXISTS idx_individual_sensors_sensor
 	ON individual_sensors (sensor_type_id);
+
+COMMIT;
+
+SELECT COUNT(*) AS study_taxa_rows FROM study_taxa;
+SELECT COUNT(*) AS study_sensors_rows FROM study_sensors;
+SELECT COUNT(*) AS individual_sensors_rows FROM individual_sensors;

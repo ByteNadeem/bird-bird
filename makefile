@@ -1,4 +1,4 @@
-.PHONY: help run spplist recent recent-species load-sqlite verify-sqlite clean-data coverage-report init-migration-db load-ebird run-api test-api
+.PHONY: help run spplist recent recent-species load-sqlite verify-sqlite clean-data coverage-report init-migration-db load-ebird run-api test-api test story5-models story5-models-climate
 
 PY ?= python
 SCRIPT := backend/services/ebird_api.py
@@ -60,3 +60,12 @@ run-api:
 
 test-api:
 	$(PY) -c "from backend.app import app; c=app.test_client(); r1=c.get('/api/species'); r2=c.get('/api/migration/?limit=10'); print('species status:', r1.status_code, 'count:', r1.get_json().get('meta',{}).get('count')); print('migration status:', r2.status_code, 'count:', r2.get_json().get('meta',{}).get('count'))"
+
+test:
+	$(PY) -m pytest
+
+story5-models:
+	$(PY) stats_models.py --db-path migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05
+
+story5-models-climate:
+	$(PY) stats_models.py --db-path migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05 --climate-csv climate_daily_story5_1_era5_land.csv --climate-vars "$(CLIMATE_VARS)" --min-climate-coverage $(MIN_CLIMATE_COVERAGE)
