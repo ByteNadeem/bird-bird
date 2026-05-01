@@ -1,0 +1,59 @@
+classDiagram
+direction LR
+
+class FrontendUI {
+  +renderSpeciesSelect()
+  +renderMap()
+  +renderTrendChart()
+  +fetchVisualization(speciesCode)
+}
+
+class MigrationAPI {
+  +get_species(limit)
+  +get_migration_weekly(limit,speciesCode,from,to)
+  +get_migration_routes(limit,speciesCode,from,to)
+  +get_visualization_bundle(speciesCode,...)
+  +get_collectible_individuals(limit,speciesCode)
+}
+
+class StatsModels {
+  +load_base_data(dbPath)
+  +build_analysis_frame(df)
+  +run_ols_model(frame)
+  +run_mixed_model(frame)
+  +write_outputs(outputDir,plotDir)
+}
+
+class InitMigrationDB {
+  +apply_schema(con,schemaPath,replace)
+  +seed_from_cleaned(cleanedCsv)
+  +ingest_ebird(globs)
+}
+
+class LoadMovebankSQLite {
+  +apply_sql_file(con,coreSchema)
+  +upsert_studies(records)
+  +upsert_individuals(records)
+  +apply_sql_file(con,normalizedSchema)
+}
+
+class MigrationDB {
+  +species
+  +observations
+  +individual_profiles
+}
+
+class BirdBirdDB {
+  +studies
+  +individuals
+  +study_taxa
+  +study_sensors
+  +individual_sensors
+}
+
+FrontendUI --> MigrationAPI : HTTP JSON
+MigrationAPI --> MigrationDB : sqlite queries
+StatsModels --> MigrationDB : analytical reads
+InitMigrationDB --> MigrationDB : schema + seed
+LoadMovebankSQLite --> BirdBirdDB : core + normalized load
+InitMigrationDB ..> LoadMovebankSQLite : upstream cleaned data dependency

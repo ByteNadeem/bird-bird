@@ -1,0 +1,13 @@
+flowchart TD
+  A([Start]) --> B[Collect raw files from eBird and Movebank]
+  B --> C[Load Movebank core tables into bird_bird.db]
+  C --> D[Build normalized Movebank tables]
+  D --> E[Initialize migration.db schema]
+  E --> F[Seed observations from cleaned CSV]
+  F --> G[Ingest eBird JSON into species and observations]
+  G --> H{Validation checks pass?}
+  H -- No --> I[Review errors and fix source/mapping]
+  I --> E
+  H -- Yes --> J[Run Story 5 models]
+  J --> K[Generate docs outputs and plots]
+  K --> L([End])

@@ -1,0 +1,31 @@
+flowchart LR
+  User([End User])
+  Admin([Admin])
+  SysMgr([System Manager])
+
+  subgraph System[Bird-Bird Migration Platform]
+    UC1((View species list))
+    UC2((View migration map))
+    UC3((View weekly trend chart))
+    UC4((Filter by species and date))
+    UC5((Initialize migration database))
+    UC6((Load eBird and Movebank data))
+    UC7((Run validation and tests))
+    UC8((Run Story 5 statistical models))
+    UC9((Monitor API health and uptime))
+    UC10((Review logs and outputs))
+  end
+
+  User --> UC1
+  User --> UC2
+  User --> UC3
+  User --> UC4
+
+  Admin --> UC5
+  Admin --> UC6
+  Admin --> UC7
+  Admin --> UC8
+
+  SysMgr --> UC7
+  SysMgr --> UC9
+  SysMgr --> UC10

@@ -1,0 +1,34 @@
+flowchart LR
+  subgraph Client[Frontend Layer]
+    UI[Migration Explorer UI\nindex.html + scripts]
+  end
+
+  subgraph API[Service Layer]
+    APP[Flask API\nbackend/app.py]
+    CACHE[In-memory API Cache]
+  end
+
+  subgraph Pipelines[Data Pipeline Layer]
+    EBIRD[eBird Loader\nscripts/load_ebird_to_migration.py]
+    MOVE[Movebank Loader\nscripts/load_movebank_sqlite.py]
+    INIT[Migration DB Init\nscripts/init_migration_db.py]
+    MODEL[Story 5 Models\nbackend/analysis/stats_models.py]
+  end
+
+  subgraph Storage[Data Layer]
+    MDB[(migration.db)]
+    BDB[(bird_bird.db)]
+    RAW[(raw JSON/CSV)]
+    OUT[(docs + plots)]
+  end
+
+  UI -->|GET /api/*| APP
+  APP <--> CACHE
+  APP --> MDB
+  EBIRD --> RAW
+  MOVE --> RAW
+  MOVE --> BDB
+  INIT --> MDB
+  INIT --> RAW
+  MODEL --> MDB
+  MODEL --> OUT

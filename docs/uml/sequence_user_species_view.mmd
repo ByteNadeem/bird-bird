@@ -1,0 +1,21 @@
+sequenceDiagram
+  autonumber
+  actor User
+  participant UI as Frontend UI
+  participant API as Flask API
+  participant DB as migration.db
+
+  User->>UI: Open app and choose species
+  UI->>API: GET /api/species?limit=200
+  API->>DB: Query species + counts
+  DB-->>API: Species rows
+  API-->>UI: JSON species payload
+
+  UI->>API: GET /api/visualization/?species_code=eurcur
+  API->>DB: Query weekly aggregates
+  DB-->>API: Weekly rows
+  API->>DB: Query route points
+  DB-->>API: Route rows
+  API-->>UI: Weekly + route_points + timeline_weeks
+
+  UI-->>User: Render map and weekly chart
