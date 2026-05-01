@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>bird-bird | Migration Explorer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="/ui/styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/ui/styles/main.css">
 </head>
 <body>
   <main class="app-shell">
@@ -39,7 +39,7 @@
 
     <section class="timeline-bar" aria-label="Timeline controls">
       <label for="timelineSlider">Timeline</label>
-      <input id="timelineSlider" type="range" min="0" max="0" value="0" step="1" disabled />
+      <input id="timelineSlider" type="range" min="0" max="0" value="0" step="1" disabled>
       <p id="timelineLabel" class="timeline-label">Waiting for weekly data...</p>
     </section>
 
@@ -49,7 +49,10 @@
           <h2>Migration Map</h2>
           <span class="badge">Live routes</span>
         </div>
-        <div id="map" class="canvas-placeholder" aria-label="Interactive migration map"></div>
+       <div id="map"
+     class="canvas-placeholder"
+     role="region"
+     aria-label="Interactive migration map"></div>
       </article>
 
       <article class="panel chart-panel" aria-label="Chart container">
@@ -73,7 +76,11 @@
         <p id="collectiblesStatus" class="collectibles-status" role="status" aria-live="polite">
           Waiting for species selection...
         </p>
-        <div id="collectiblesGrid" class="collectibles-grid" aria-label="Collectible cards list"></div>
+       <div id="collectiblesGrid"
+     class="collectibles-grid"
+     role="region"
+     aria-label="Collectible cards list"></div>
+
       </article>
     </section>
   </main>
