@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-30 12:18:25 UTC",
+  "generated_at": "2026-05-02 17:13:11 UTC",
   "db_path": "C:\\vs-projects\\bird-bird\\backend\\database\\migration.db",
-  "rows_used": 73,
-  "species_count": 1,
-  "deployment_count": 23,
-  "formula": "day_of_year ~ centered_year + tmean_c_roll14 + precip_mm_roll14",
+  "rows_used": 126,
+  "species_count": 2,
+  "deployment_count": 73,
+  "formula": "day_of_year ~ centered_year + C(species_code) + centered_year:C(species_code)",
   "model_requested": "both",
   "models_succeeded": [
     "ols"
@@ -13,23 +13,17 @@
     "mixed": "Singular matrix"
   },
   "qc": {
-    "source_rows": 80650,
-    "rows_after_cleaning": 80650,
-    "rows_after_grouping": 114
+    "source_rows": 80749,
+    "rows_after_cleaning": 80749,
+    "rows_after_grouping": 213
   },
   "filter_summary": {
-    "rows_after_filters": 75,
-    "species_count": 1,
-    "deployment_count": 23
+    "rows_after_filters": 126,
+    "species_count": 2,
+    "deployment_count": 73
   },
-  "climate_vars": [
-    "tmean_c_roll14",
-    "precip_mm_roll14"
-  ],
-  "climate_coverage": {
-    "tmean_c_roll14": 0.9733333333333334,
-    "precip_mm_roll14": 0.9733333333333334
-  },
+  "climate_vars": [],
+  "climate_coverage": {},
   "plot_files": [
     "C:\\vs-projects\\bird-bird\\backend\\data\\plots\\migration_timing_trends.png",
     "C:\\vs-projects\\bird-bird\\backend\\data\\plots\\migration_timing_residuals.png"
@@ -38,53 +32,53 @@
     {
       "model": "ols",
       "term": "Intercept",
-      "estimate": 87.72215250697111,
-      "std_error": 10.021662256614006,
-      "p_value": 2.072879354166616e-18,
-      "ci_lower": 68.08005541878326,
-      "ci_upper": 107.36424959515897,
-      "nobs": 73.0,
-      "aic": 728.7003433256388,
-      "bic": 737.8621810902323,
+      "estimate": 118.57999999999998,
+      "std_error": 0.08701634940950138,
+      "p_value": 0.0,
+      "ci_lower": 118.4094510890912,
+      "ci_upper": 118.75054891090876,
+      "nobs": 126.0,
+      "aic": 1267.9436767564064,
+      "bic": 1276.4525224772608,
+      "converged": true
+    },
+    {
+      "model": "ols",
+      "term": "C(species_code)[T.eurcur]",
+      "estimate": -19.72055087487707,
+      "std_error": 4.195295593909769,
+      "p_value": 2.5935446448837052e-06,
+      "ci_lower": -27.943179143439792,
+      "ci_upper": -11.497922606314345,
+      "nobs": 126.0,
+      "aic": 1267.9436767564064,
+      "bic": 1276.4525224772608,
       "converged": true
     },
     {
       "model": "ols",
       "term": "centered_year",
-      "estimate": -3.7217315275846854,
-      "std_error": 1.1278501719118326,
-      "p_value": 0.0009673800429291542,
-      "ci_lower": -5.932277244489185,
-      "ci_upper": -1.511185810680185,
-      "nobs": 73.0,
-      "aic": 728.7003433256388,
-      "bic": 737.8621810902323,
+      "estimate": -5.960453646321945,
+      "std_error": 0.6146913929491672,
+      "p_value": 3.1152889148574444e-22,
+      "ci_lower": -7.16522663810907,
+      "ci_upper": -4.755680654534819,
+      "nobs": 126.0,
+      "aic": 1267.9436767564064,
+      "bic": 1276.4525224772608,
       "converged": true
     },
     {
       "model": "ols",
-      "term": "tmean_c_roll14",
-      "estimate": 4.317336141610681,
-      "std_error": 0.7564513520199917,
-      "p_value": 1.1474553441384471e-08,
-      "ci_lower": 2.8347187355948664,
-      "ci_upper": 5.799953547626495,
-      "nobs": 73.0,
-      "aic": 728.7003433256388,
-      "bic": 737.8621810902323,
-      "converged": true
-    },
-    {
-      "model": "ols",
-      "term": "precip_mm_roll14",
-      "estimate": 0.05824853203112171,
-      "std_error": 0.030237189345554357,
-      "p_value": 0.05405605475787666,
-      "ci_lower": -0.001015270079883078,
-      "ci_upper": 0.1175123341421265,
-      "nobs": 73.0,
-      "aic": 728.7003433256388,
-      "bic": 737.8621810902323,
+      "term": "centered_year:C(species_code)[T.eurcur]",
+      "estimate": -5.9604536463230735,
+      "std_error": 0.6146913929491855,
+      "p_value": 3.115288914810186e-22,
+      "ci_lower": -7.165226638110235,
+      "ci_upper": -4.755680654535912,
+      "nobs": 126.0,
+      "aic": 1267.9436767564064,
+      "bic": 1276.4525224772608,
       "converged": true
     }
   ]

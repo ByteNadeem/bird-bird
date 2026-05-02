@@ -65,7 +65,7 @@ test:
 	$(PY) -m pytest
 
 story5-models:
-	$(PY) stats_models.py --db-path migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05
+	$(PY) backend/analysis/stats_models.py --db-path backend/database/migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05
 
 story5-models-climate:
-	$(PY) stats_models.py --db-path migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05 --climate-csv climate_daily_story5_1_era5_land.csv --climate-vars "$(CLIMATE_VARS)" --min-climate-coverage $(MIN_CLIMATE_COVERAGE)
+	$(PY) backend/analysis/stats_models.py --db-path backend/database/migration.db --output-dir docs --plot-dir backend/data/plots --min-rows-per-species 50 --model both --alpha 0.05 --climate-csv backend/data/clean/climate_daily_story5_1_era5_land.csv --climate-vars "$(CLIMATE_VARS)" --min-climate-coverage $(MIN_CLIMATE_COVERAGE)

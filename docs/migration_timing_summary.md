@@ -1,11 +1,11 @@
 # Migration Timing Shift Summary
 
-- Generated at: 2026-04-30 12:18:25 UTC
+- Generated at: 2026-05-02 17:13:11 UTC
 - Database: C:\vs-projects\bird-bird\backend\database\migration.db
-- Rows used in analysis: 73
-- Species count: 1
-- Deployment groups: 23
-- Formula: day_of_year ~ centered_year + tmean_c_roll14 + precip_mm_roll14
+- Rows used in analysis: 126
+- Species count: 2
+- Deployment groups: 73
+- Formula: day_of_year ~ centered_year + C(species_code) + centered_year:C(species_code)
 - Models requested: both
 - Models succeeded: ols
 
@@ -19,4 +19,6 @@
 
 | Model | Term | Estimate | p-value |
 |---|---|---:|---:|
-| ols | centered_year | -3.721732 | 0.00096738 |
+| ols | C(species_code)[T.eurcur] | -19.720551 | 2.59354e-06 |
+| ols | centered_year | -5.960454 | 3.11529e-22 |
+| ols | centered_year:C(species_code)[T.eurcur] | -5.960454 | 3.11529e-22 |
