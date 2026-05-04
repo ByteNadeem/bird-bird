@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1860" viewBox="0 0 1600 1860" role="img" aria-labelledby="title desc">
+  <title id="title">bird-bird UI wireframes</title>
+  <desc id="desc">Three wireframe states for the bird migration explorer: default, species selected, and mobile layout.</desc>
+
+  <defs>
+    <style>
+      .bg { fill: #f7f5ef; }
+      .frame { fill: #ffffff; stroke: #c9c3b8; stroke-width: 2; }
+      .panel { fill: #fdfdfb; stroke: #6e6a62; stroke-width: 2; rx: 18; ry: 18; }
+      .soft { fill: #f3f0e7; stroke: #8f8a7f; stroke-width: 1.5; rx: 12; ry: 12; }
+      .dash { fill: #faf9f6; stroke: #8f8a7f; stroke-width: 2; stroke-dasharray: 10 8; rx: 14; ry: 14; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; fill: #1d221d; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #243024; }
+      .text { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #37413a; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #56625a; }
+      .chip { fill: #e9f3ee; stroke: #7ba38f; stroke-width: 1.5; rx: 999; ry: 999; }
+      .chip2 { fill: #f5ebe0; stroke: #d29d66; stroke-width: 1.5; rx: 999; ry: 999; }
+      .line { stroke: #9aa39a; stroke-width: 2; }
+      .muted { fill: #6e776f; }
+      .accent { fill: #0a7f64; }
+      .accent2 { fill: #d07a2f; }
+      .note { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #657169; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1680" />
+  <text class="title" x="70" y="62">bird-bird UI wireframes</text>
+  <text class="note" x="70" y="90">Vector SVG, suitable for Microsoft Word, PowerPoint, and browser preview.</text>
+
+  <rect class="frame" x="50" y="120" width="1500" height="470" rx="24" ry="24" />
+  <text class="label" x="80" y="160">Screen 1 - Default State</text>
+  <text class="note" x="80" y="184">No species selected yet.</text>
+
+  <rect class="panel" x="80" y="210" width="1440" height="110" rx="18" ry="18" />
+  <text class="label" x="110" y="248">Bird Migration Explorer</text>
+  <text class="text" x="110" y="276">Track seasonal movement patterns with weekly migration data.</text>
+  <rect class="chip" x="1090" y="232" width="180" height="42" rx="21" ry="21" />
+  <text class="small" x="1120" y="259">Species dropdown</text>
+  <rect class="chip2" x="1290" y="232" width="200" height="42" rx="21" ry="21" />
+  <text class="small" x="1322" y="259">API status</text>
+
+  <rect class="soft" x="80" y="340" width="1440" height="70" rx="14" ry="14" />
+  <text class="text" x="110" y="384">Timeline slider disabled</text>
+  <text class="small" x="1210" y="384">Waiting for weekly data...</text>
+
+  <rect class="dash" x="80" y="430" width="700" height="130" rx="16" ry="16" />
+  <rect class="dash" x="820" y="430" width="700" height="130" rx="16" ry="16" />
+  <text class="label" x="110" y="464">Migration Map</text>
+  <text class="text" x="110" y="496">Empty placeholder map</text>
+  <text class="small" x="110" y="522">Legend appears in corner when loaded.</text>
+  <text class="label" x="850" y="464">Weekly Trend Chart</text>
+  <text class="text" x="850" y="496">Empty chart placeholder</text>
+  <text class="small" x="850" y="522">Waiting for species selection.</text>
+
+  <rect class="dash" x="80" y="580" width="1440" height="120" rx="16" ry="16" />
+  <text class="label" x="110" y="618">Collector Cards (Internal Preview)</text>
+  <text class="text" x="110" y="650">No species selected yet.</text>
+
+  <rect class="frame" x="50" y="630" width="1500" height="470" rx="24" ry="24" />
+  <text class="label" x="80" y="670">Screen 2 - Species Selected</text>
+  <text class="note" x="80" y="694">Map, chart, and collectible cards update from the selected species.</text>
+
+  <rect class="panel" x="80" y="720" width="1440" height="110" rx="18" ry="18" />
+  <text class="label" x="110" y="758">Bird Migration Explorer</text>
+  <text class="text" x="110" y="786">Choose a species and inspect route history by week.</text>
+  <rect class="chip" x="1070" y="742" width="200" height="42" rx="21" ry="21" />
+  <text class="small" x="1104" y="769">Selected species</text>
+  <rect class="chip2" x="1290" y="742" width="200" height="42" rx="21" ry="21" />
+  <text class="small" x="1322" y="769">Loaded / error</text>
+
+  <rect class="soft" x="80" y="850" width="1440" height="70" rx="14" ry="14" />
+  <text class="text" x="110" y="894">Timeline slider active</text>
+  <text class="small" x="1180" y="894">Week N of M, up to date label</text>
+
+  <rect class="dash" x="80" y="940" width="700" height="130" rx="16" ry="16" />
+  <rect class="dash" x="820" y="940" width="700" height="130" rx="16" ry="16" />
+  <text class="label" x="110" y="974">Migration Map</text>
+  <line class="line" x1="120" y1="1030" x2="340" y2="990" />
+  <line class="line" x1="340" y1="990" x2="500" y2="1015" />
+  <line class="line" x1="500" y1="1015" x2="640" y2="975" />
+  <circle class="accent" cx="120" cy="1030" r="7" />
+  <circle class="accent2" cx="340" cy="990" r="7" />
+  <circle class="accent" cx="500" cy="1015" r="7" />
+  <circle class="accent2" cx="640" cy="975" r="7" />
+  <text class="small" x="110" y="1062">Route polyline and stop markers</text>
+  <text class="label" x="850" y="974">Weekly Trend Chart</text>
+  <line class="line" x1="860" y1="1040" x2="930" y2="1005" />
+  <line class="line" x1="930" y1="1005" x2="1000" y2="1020" />
+  <line class="line" x1="1000" y1="1020" x2="1080" y2="980" />
+  <line class="line" x1="1080" y1="980" x2="1180" y2="995" />
+  <text class="small" x="850" y="1062">Yearly trend lines with legend</text>
+
+  <rect class="dash" x="80" y="1090" width="1440" height="120" rx="16" ry="16" />
+  <text class="label" x="110" y="1128">Collector Cards (Internal Preview)</text>
+  <text class="text" x="110" y="1160">3-column card grid on desktop, stacked on mobile.</text>
+  <text class="small" x="110" y="1184">Tier, species, observations, active weeks, dates, deployment id.</text>
+
+  <rect class="frame" x="50" y="1140" width="1500" height="650" rx="24" ry="24" />
+  <text class="label" x="80" y="1180">Screen 3 - Mobile Layout</text>
+  <text class="note" x="80" y="1204">Controls stack first, then each panel becomes full width.</text>
+
+  <rect class="panel" x="90" y="1240" width="1420" height="86" rx="18" ry="18" />
+  <text class="label" x="120" y="1274">Bird Migration Explorer</text>
+  <text class="small" x="120" y="1301">Subtitle</text>
+
+  <rect class="soft" x="90" y="1340" width="1420" height="74" rx="14" ry="14" />
+  <text class="text" x="120" y="1385">Species dropdown</text>
+  <text class="small" x="1240" y="1385">API status</text>
+
+  <rect class="soft" x="90" y="1426" width="1420" height="74" rx="14" ry="14" />
+  <text class="text" x="120" y="1471">Timeline slider</text>
+  <text class="small" x="1240" y="1471">Timeline label</text>
+
+  <rect class="dash" x="90" y="1512" width="1420" height="86" rx="16" ry="16" />
+  <text class="label" x="120" y="1564">Migration Map</text>
+
+  <rect class="dash" x="90" y="1610" width="1420" height="86" rx="16" ry="16" />
+  <text class="label" x="120" y="1662">Weekly Trend Chart</text>
+
+  <rect class="dash" x="90" y="1708" width="1420" height="86" rx="16" ry="16" />
+  <text class="label" x="120" y="1760">Collector Cards</text>
+</svg>

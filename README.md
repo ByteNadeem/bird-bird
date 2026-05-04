@@ -19,6 +19,14 @@ This project explores how emerging technologies (edge devices, IoT sensors, micr
 ## Purpose
 This repository structure is a development roadmap that tracks what exists now and what is still planned, so project direction stays explicit over time.
 
+## UI Wireframes
+
+The current frontend wireframes are documented in [docs/wireframes.md](docs/wireframes.md).
+
+If you want an actual image for Microsoft Word, use [docs/wireframes.svg](docs/wireframes.svg).
+
+That file is the best place to review layout and flow because it stays close to the repo, is easy to version, and does not force the README to become a design dump.
+
 ## Structure Roadmap
 Legend: [current], [planned], [candidate-removal]
 

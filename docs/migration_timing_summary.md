@@ -1,6 +1,6 @@
 # Migration Timing Shift Summary
 
-- Generated at: 2026-05-02 17:13:11 UTC
+- Generated at: 2026-05-02 19:46:39 UTC
 - Database: C:\vs-projects\bird-bird\backend\database\migration.db
 - Rows used in analysis: 126
 - Species count: 2
